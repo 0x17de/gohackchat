@@ -8,5 +8,5 @@ all: gohackbot
 clean:
 	rm gohackbot
 
-gohackbot: $(SRCS)
-	go build -o $@ $^
+gohackbot: $(SRCS) $(EXTRA_SRCS)
+	go build -o $@ $(SRCS)

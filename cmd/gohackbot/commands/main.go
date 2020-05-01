@@ -1,4 +1,4 @@
-package main
+package commands
 
 import (
 	"strings"
@@ -6,26 +6,53 @@ import (
 	hack "github.com/0x17de/gohackchat/pkg/hack"
 )
 
-type Command interface {
+type ICommand interface {
+	GetArgs(root hack.JsonValue) []string
+	GetAliases() []string
+	GetDescription() string
 	Run(client *hack.Client, root hack.JsonValue)
+}
+
+type Command struct {
+	aliases     []string
+	description string
+}
+
+func (c *Command) GetAliases() []string {
+	return c.aliases
+}
+
+func (c *Command) GetDescription() string {
+	return c.description
+}
+
+func (c *Command) GetArgs(root hack.JsonValue) []string {
+	text, ok := root["text"].(string)
+	if !ok {
+		return nil
+	}
+
+	return strings.Split(text[1:], " ")
 }
 
 type CommandModule struct {
 	prefix    string
-	commands  map[string]Command
+	commands  map[string]ICommand
 	mustBeMod bool
 }
 
 func NewCommandModule(prefix string, mustBeMod bool) *CommandModule {
 	return &CommandModule{
 		prefix:    prefix,
-		commands:  make(map[string]Command),
+		commands:  make(map[string]ICommand),
 		mustBeMod: mustBeMod,
 	}
 }
 
-func (m *CommandModule) Register(name string, cmd Command) {
-	m.commands[name] = cmd
+func (m *CommandModule) Register(cmd ICommand) {
+	for _, name := range cmd.GetAliases() {
+		m.commands[name] = cmd
+	}
 }
 
 func (m *CommandModule) OnMessage(client *hack.Client, root hack.JsonValue) bool {
@@ -46,11 +73,4 @@ func (m *CommandModule) OnMessage(client *hack.Client, root hack.JsonValue) bool
 		}
 	}
 	return true
-}
-
-type TestCommand struct {
-}
-
-func (t *TestCommand) Run(c *hack.Client, root hack.JsonValue) {
-	c.SendMessage("Works!")
 }

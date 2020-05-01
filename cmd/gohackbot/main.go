@@ -29,6 +29,10 @@ func main() {
 	prefix := flag.String("prefix", "&", "The command prefix")
 	flag.Parse()
 
+	if len(*prefix) != 1 {
+		log.Fatalf("Only one character prefixes are supported yet")
+	}
+
 	if *password == "" && *passwordFile != "" {
 		data, err := ioutil.ReadFile(*passwordFile)
 		*password = string(data)
@@ -45,12 +49,14 @@ func main() {
 		log.Fatalf("Failed to create client: %v", err)
 	}
 
-	userCommandModule := NewCommandModule(*prefix, false)
-	userCommandModule.Register("test", &TestCommand{})
+	userCommandModule := cmds.NewCommandModule(*prefix, false)
+	userCommandModule.Register(cmds.NewTestCommand())
 
-	modCommandModule := NewCommandModule(*prefix, true)
-	modCommandModule.Register("lockroom", cmds.NewLockRoomCommand(true))
-	modCommandModule.Register("unlockroom", cmds.NewLockRoomCommand(false))
+	modCommandModule := cmds.NewCommandModule(*prefix, true)
+	modCommandModule.Register(cmds.NewLockRoomCommand())
+	modCommandModule.Register(cmds.NewCaptchaCommand())
+	modCommandModule.Register(cmds.NewMuteCommand())
+	modCommandModule.Register(cmds.NewKickCommand())
 
 	client.Register(NewPrintModule())
 	client.Register(modCommandModule)
