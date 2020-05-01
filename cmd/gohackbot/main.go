@@ -49,14 +49,20 @@ func main() {
 		log.Fatalf("Failed to create client: %v", err)
 	}
 
+	helpCommand := cmds.NewHelpCommand()
+
 	userCommandModule := cmds.NewCommandModule(*prefix, false)
 	userCommandModule.Register(cmds.NewTestCommand())
+	userCommandModule.Register(helpCommand)
 
 	modCommandModule := cmds.NewCommandModule(*prefix, true)
 	modCommandModule.Register(cmds.NewLockRoomCommand())
 	modCommandModule.Register(cmds.NewCaptchaCommand())
 	modCommandModule.Register(cmds.NewMuteCommand())
 	modCommandModule.Register(cmds.NewKickCommand())
+
+	helpCommand.Register("Mod", modCommandModule)
+	helpCommand.Register("User", userCommandModule)
 
 	client.Register(NewPrintModule())
 	client.Register(modCommandModule)

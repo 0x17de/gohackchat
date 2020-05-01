@@ -37,22 +37,20 @@ func (c *Command) GetArgs(root hack.JsonValue) []string {
 
 type CommandModule struct {
 	prefix    string
-	commands  map[string]ICommand
+	commands  []ICommand
 	mustBeMod bool
 }
 
 func NewCommandModule(prefix string, mustBeMod bool) *CommandModule {
 	return &CommandModule{
 		prefix:    prefix,
-		commands:  make(map[string]ICommand),
+		commands:  make([]ICommand, 0),
 		mustBeMod: mustBeMod,
 	}
 }
 
 func (m *CommandModule) Register(cmd ICommand) {
-	for _, name := range cmd.GetAliases() {
-		m.commands[name] = cmd
-	}
+	m.commands = append(m.commands, cmd)
 }
 
 func (m *CommandModule) OnMessage(client *hack.Client, root hack.JsonValue) bool {
@@ -65,10 +63,12 @@ func (m *CommandModule) OnMessage(client *hack.Client, root hack.JsonValue) bool
 		return true
 	}
 	if strings.HasPrefix(text, m.prefix) {
-		for name, cmd := range m.commands {
-			if strings.HasPrefix(text[1:], name) && (len(text) == len(name)+1 || text[len(name)+1] == ' ') {
-				cmd.Run(client, root)
-				return false
+		for _, cmd := range m.commands {
+			for _, name := range cmd.GetAliases() {
+				if strings.HasPrefix(text[1:], name) && (len(text) == len(name)+1 || text[len(name)+1] == ' ') {
+					cmd.Run(client, root)
+					return false
+				}
 			}
 		}
 	}
