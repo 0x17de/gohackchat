@@ -23,6 +23,6 @@ func (cmd *KickCommand) Run(c *hack.Client, root hack.JsonValue) {
 
 	reply := make(hack.JsonValue)
 	reply["cmd"] = "kick"
-	reply["nick"] = args[2]
+	reply["nick"] = args[1]
 	c.SendJSON(reply)
 }
