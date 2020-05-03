@@ -60,6 +60,7 @@ func main() {
 	modCommandModule.Register(cmds.NewCaptchaCommand())
 	modCommandModule.Register(cmds.NewMuteCommand())
 	modCommandModule.Register(cmds.NewKickCommand())
+	modCommandModule.Register(cmds.NewAuthCommand())
 
 	helpCommand.Register("Mod", modCommandModule)
 	helpCommand.Register("User", userCommandModule)
