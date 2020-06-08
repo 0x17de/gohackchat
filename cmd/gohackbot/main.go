@@ -53,6 +53,7 @@ func main() {
 
 	userCommandModule := cmds.NewCommandModule(*prefix, false)
 	userCommandModule.Register(cmds.NewTestCommand())
+	userCommandModule.Register(cmds.NewColorCommand())
 	userCommandModule.Register(helpCommand)
 
 	modCommandModule := cmds.NewCommandModule(*prefix, true)
