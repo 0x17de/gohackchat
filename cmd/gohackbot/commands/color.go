@@ -23,6 +23,11 @@ func NewColorCommand() *ColorCommand {
 func (cmd *ColorCommand) Run(c *hack.Client, root hack.JsonValue) {
 	args := cmd.GetArgs(root)
 	reply := make(hack.JsonValue)
+	if len(args) < 2 {
+		return
+	}
+
+	requestedColor := strings.ToLower(args[1])
 	reply["cmd"] = "forcecolor"
 	switch len(args) {
 	case 2:
@@ -47,7 +52,7 @@ func (cmd *ColorCommand) Run(c *hack.Client, root hack.JsonValue) {
 
 		allowedColor := false
 		for _, color := range colors {
-			if args[1] == color {
+			if requestedColor == color {
 				allowedColor = true
 				break
 			}
@@ -56,15 +61,15 @@ func (cmd *ColorCommand) Run(c *hack.Client, root hack.JsonValue) {
 		if !allowedColor {
 			return
 		}
-		fmt.Printf("Setting %s#%s's color to %s", root["nick"], trip, args[1])
+		fmt.Printf("Setting %s#%s's color to %s", root["nick"], trip, requestedColor)
 
 		reply["nick"] = root["nick"]
-		reply["color"] = args[1]
+		reply["color"] = requestedColor
 	case 3:
 		if !c.IsMod(root) {
 			return
 		}
-		reply["nick"] = args[1]
+		reply["nick"] = requestedColor
 		reply["color"] = args[2]
 	}
 	c.SendJSON(reply)
